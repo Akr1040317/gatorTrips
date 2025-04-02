@@ -1,0 +1,259 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+  /* You can tweak these primary colors to match your exact design */
+  --color-teal: #0D5C63;
+  --color-dark-teal: #09484A; 
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-gray: #333333;
+  --color-orange: #FFA500;
+  --color-yellow: #FFD700;
+}
+
+/* Global Reset & Font */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #ffffff; /* White site background */
+  color: var(--color-gray);
+  scroll-behavior: smooth;
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--color-teal) !important;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  color: var(--color-white) !important;
+  font-size: 1.5rem;
+}
+
+.navbar-nav .nav-link {
+  color: var(--color-white) !important;
+  margin: 0 1.2rem;
+  font-size: 1.1rem;
+  font-weight: 400;
+  transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  color: var(--color-yellow) !important;
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+  background: url('./assets/images/hero-bg.jpg') center center / cover no-repeat;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: var(--color-white);
+  max-width: 800px;
+  padding: 0 20px;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.btn-cta {
+  background-color: var(--color-orange);
+  border: none;
+  color: var(--color-white);
+  border-radius: 30px;
+  padding: 12px 30px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn-cta:hover {
+  background-color: #e38f00;
+}
+
+/* Sections */
+.section {
+  padding: 60px 0;
+}
+
+.bg-teal {
+  background-color: var(--color-teal);
+}
+
+.bg-white {
+  background-color: var(--color-white);
+}
+
+.bg-dark-teal {
+  background-color: var(--color-dark-teal);
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-teal);
+  margin-bottom: 30px;
+}
+
+.section-title-light {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-white);
+  margin-bottom: 30px;
+}
+
+.text-teal {
+  color: var(--color-teal) !important;
+}
+
+.text-light {
+  color: var(--color-white) !important;
+}
+
+/* Journey Section */
+.section-journey p {
+  font-size: 1rem;
+}
+
+.journey-images {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.journey-img-top,
+.journey-img-bottom {
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
+.journey-img-bottom {
+  width: 80%;
+  align-self: flex-end;
+}
+
+/* Features Section */
+.section-features .section-title {
+  text-align: center;
+  position: relative;
+}
+
+.section-features .section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: var(--color-teal);
+}
+
+.feature-card {
+  border: none;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+  border-radius: 10px;
+}
+
+.feature-card img {
+  height: 200px;
+  object-fit: cover;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.feature-card .card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-teal);
+}
+
+.feature-card .card-text {
+  font-size: 0.95rem;
+  color: var(--color-gray);
+}
+
+/* How It Works */
+.section-how-it-works .how-list {
+  list-style: none;
+  padding-left: 0;
+  color: var(--color-white);
+}
+
+.section-how-it-works .how-list li {
+  margin-bottom: 1.5rem;
+}
+
+.section-how-it-works .how-list strong {
+  display: block;
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+  color: var(--color-white);
+}
+
+/* FAQ */
+.section-faq h5 {
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  color: var(--color-gray);
+}
+
+/* Contact */
+.section-contact .contact-list {
+  list-style: none;
+  padding-left: 0;
+  color: var(--color-white);
+}
+
+.section-contact .contact-list li {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+/* Utility */
+img.rounded {
+  border-radius: 10px;
+}
+
+.shadow {
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
+/* Links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+a:hover {
+  color: var(--color-yellow);
+  text-decoration: none;
+}
