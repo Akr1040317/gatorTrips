@@ -257,3 +257,19 @@ a:hover {
   color: var(--color-yellow);
   text-decoration: none;
 }
+
+.auth-card {
+  background-color: var(--color-white);
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.form-control:focus {
+  border-color: var(--color-teal);
+  box-shadow: 0 0 0 0.2rem rgba(13, 92, 99, 0.25);
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}

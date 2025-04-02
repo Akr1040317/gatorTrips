@@ -22,18 +22,7 @@ import contactAirplane from './assets/images/contact-airplane.jpg';
 
 function Home() {
   useEffect(() => {
-    const logVisit = async () => {
-      try {
-        await addDoc(collection(db, 'visits'), {
-          page: 'home',
-          timestamp: new Date(),
-        });
-        console.log('Visit logged');
-      } catch (e) {
-        console.error('Error logging visit: ', e);
-      }
-    };
-    logVisit();
+    
   }, []);
 
   return (
