@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Button from 'react-bootstrap/Button';
-import Card from 'react-bootstrap/Card';
 import { db } from './firebase';
 import { collection, addDoc } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
+import { Button, Container, Row, Col, Card } from 'react-bootstrap';
+import { useAuth } from './AuthContext';
 import './index.css';
 
 // Import images
@@ -21,9 +19,16 @@ import faqMap from './assets/images/faq-map.jpg';
 import contactAirplane from './assets/images/contact-airplane.jpg';
 
 function Home() {
-  useEffect(() => {
-    
-  }, []);
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
+
+  const handleStartPlanning = () => {
+    if (currentUser) {
+      navigate('/trips');
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
     <>
@@ -32,14 +37,14 @@ function Home() {
         <div className="hero-overlay"></div>
         <div className="hero-content">
           <h1>Effortless Travel Planning for Every Adventure</h1>
-          <Button href="/login" className="btn-cta">
-            Start Planning Now
+          <Button onClick={handleStartPlanning} className="btn-cta">
+            Plan a Trip!
           </Button>
         </div>
       </div>
 
       {/* Plan Your Journey Section (Teal BG) */}
-      <section className="section section-journey bg-teal">
+      <section id="journey" className="section section-journey bg-teal">
         <Container>
           <Row className="align-items-center">
             <Col md={6}>
@@ -219,7 +224,7 @@ function Home() {
       </section>
 
       {/* Contact Us Section (Dark/Teal BG) */}
-      <section id="contact" className="section section-contact bg-dark-teal">
+      <section id="contact" className="section section-contact bg-teal">
         <Container>
           <Row className="align-items-center">
             <Col md={6}>
@@ -229,9 +234,10 @@ function Home() {
               </p>
               <h5 className="text-light">Our email:</h5>
               <ul className="contact-list">
-                <li></li>
+                <li>email@example.com</li>
               </ul>
               <h5 className="text-light">Phone Number:</h5>
+              <p className="text-light">+1 (800) 555-1234</p>
             </Col>
             <Col md={6}>
               <img
