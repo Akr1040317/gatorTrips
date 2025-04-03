@@ -19,9 +19,9 @@ function Login() {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/'); // Redirect to home after successful login
+      navigate('/trips'); // Redirect to home after successful login
     } catch (error) {
-      setError(error.message);
+      setError("Error: Incorrect username or password. Please try again or sign up!");
     }
   };
 
