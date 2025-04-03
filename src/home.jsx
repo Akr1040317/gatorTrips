@@ -227,15 +227,11 @@ function Home() {
               <p className="text-light">
                 We’re here to help! Reach out to us through any of the channels below.
               </p>
-              <h5 className="text-light">Our emails:</h5>
+              <h5 className="text-light">Our email:</h5>
               <ul className="contact-list">
-                <li>emailOne@gmail.com</li>
-                <li>emailTwo@gmail.com</li>
-                <li>emailThree@gmail.com</li>
-                <li>emailFour@gmail.com</li>
-                <li>emailFive@gmail.com</li>
+                <li></li>
               </ul>
-              <h5 className="text-light">Phone Number: 000 - 000 - 0000</h5>
+              <h5 className="text-light">Phone Number:</h5>
             </Col>
             <Col md={6}>
               <img
