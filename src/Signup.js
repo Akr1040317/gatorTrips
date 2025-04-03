@@ -36,7 +36,7 @@ function Signup() {
         displayName: displayName
       });
 
-      navigate('/'); // Redirect to home after successful signup
+      navigate('/trips'); // Redirect to login after successful signup
     } catch (error) {
       setError(error.message);
     }
