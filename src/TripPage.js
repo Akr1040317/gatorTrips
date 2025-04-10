@@ -10,7 +10,7 @@ import Modal from 'react-bootstrap/Modal';
 import CloseButton from 'react-bootstrap/CloseButton';
 import { doc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from './firebase';
-import './index.css'; // Make sure this contains the new styling (shown below)
+import './index.css';
 
 function TripPage() {
   const { id } = useParams();
@@ -32,6 +32,8 @@ function TripPage() {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         let tripData = { id: docSnap.id, ...docSnap.data() };
+        
+        // If trip has no days array, initialize it
         if (!tripData.days || tripData.days.length === 0) {
           tripData = initializeTripDays(tripData);
           await updateDoc(docRef, tripData);
@@ -45,8 +47,9 @@ function TripPage() {
     fetchAndInitializeTrip();
   }, [id]);
 
-  const initializeTripDays = (trip) => {
-    const { startDate, endDate } = trip;
+  // Initialize the days array if it's missing
+  const initializeTripDays = (tripData) => {
+    const { startDate, endDate } = tripData;
     const start = new Date(startDate);
     start.setUTCHours(0, 0, 0, 0);
     
@@ -55,13 +58,17 @@ function TripPage() {
 
     let daysArray = [];
     for (let d = new Date(start); d.getTime() <= end.getTime();) {
-      daysArray.push({ date: new Date(d).toISOString().split('T')[0], events: [] });
+      daysArray.push({
+        date: new Date(d).toISOString().split('T')[0],
+        events: []
+      });
       d.setUTCDate(d.getUTCDate() + 1);
     }
-    trip.days = daysArray;
-    return trip;
+    tripData.days = daysArray;
+    return tripData;
   };
 
+  // Fetch collaborator info from the DB
   const fetchCollaborators = async (collaborators) => {
     if (!collaborators || collaborators.length === 0) {
       setCollaboratorsData([]);
@@ -72,19 +79,18 @@ function TripPage() {
       collection(db, 'users'),
       where('userid', 'in', collaborators)
     );
-
     const collaboratorsSnapshot = await getDocs(collaboratorsQuery);
-    const collaboratorsData = collaboratorsSnapshot.docs.map(doc => doc.data());
-
-    setCollaboratorsData(collaboratorsData);
+    const results = collaboratorsSnapshot.docs.map(doc => doc.data());
+    setCollaboratorsData(results);
   };
 
+  // Add collaborator by displayName or email
   const handleAddCollaborator = async (e) => {
     e.preventDefault();
 
     let usersSnapshot;
 
-    // First, try to find by displayName
+    // Try displayName first
     const usersQuery = query(
       collection(db, 'users'),
       where('displayName', '==', collaborator)
@@ -92,7 +98,7 @@ function TripPage() {
     usersSnapshot = await getDocs(usersQuery);
 
     if (usersSnapshot.empty) {
-      // If not found, try by email
+      // If not found, try email
       const usersEmailQuery = query(
         collection(db, 'users'),
         where('email', '==', collaborator)
@@ -112,31 +118,33 @@ function TripPage() {
       return alert('User is already a collaborator!');
     }
 
-    const updatedCollaborators = [...trip.collaborators, userData.userid];
-    const updatedTrip = { ...trip, collaborators: updatedCollaborators };
+    const updatedCollabs = [...trip.collaborators, userData.userid];
+    const updatedTrip = { ...trip, collaborators: updatedCollabs };
 
     await updateTrip(updatedTrip);
     setCollaborator('');
     fetchCollaborators(updatedTrip.collaborators);
   };
 
+  // Remove a collaborator
   const handleRemoveCollaborator = async (uid) => {
-    const updatedCollaborators = trip.collaborators.filter(collab => collab !== uid);
-    const updatedTrip = { ...trip, collaborators: updatedCollaborators };
-
+    const updatedCollabs = trip.collaborators.filter(collab => collab !== uid);
+    const updatedTrip = { ...trip, collaborators: updatedCollabs };
     await updateTrip(updatedTrip);
     fetchCollaborators(updatedTrip.collaborators);
   };
 
+  // If a collaborator leaves the trip
   const handleLeaveTrip = async () => {
     const user = auth.currentUser.uid;
-    const updatedCollaborators = trip.collaborators.filter(collab => collab !== user);
-    const updatedTrip = { ...trip, collaborators: updatedCollaborators };
+    const updatedCollabs = trip.collaborators.filter(collab => collab !== user);
+    const updatedTrip = { ...trip, collaborators: updatedCollabs };
 
     await updateTrip(updatedTrip);
     navigate('/trips');
   };
 
+  // Add a new event to a day
   const handleAddEvent = (e) => {
     e.preventDefault();
     if (!isValidTimeRange(eventStartTime, eventEndTime)) {
@@ -145,12 +153,8 @@ function TripPage() {
     }
 
     const newEvent = { title: eventTitle, startTime: eventStartTime, endTime: eventEndTime };
-
     const updatedDays = [...trip.days];
-    updatedDays[selectedDayIndex] = {
-      ...updatedDays[selectedDayIndex],
-      events: [...updatedDays[selectedDayIndex].events, newEvent]
-    };
+    updatedDays[selectedDayIndex].events.push(newEvent);
 
     updateTrip({ ...trip, days: updatedDays });
     setEventTitle('');
@@ -159,12 +163,14 @@ function TripPage() {
     setShowAddEventModal(false);
   };
 
+  // Remove an event from a day
   const handleRemoveEvent = (dayIndex, eventIndex) => {
     const updatedDays = [...trip.days];
     updatedDays[dayIndex].events.splice(eventIndex, 1);
     updateTrip({ ...trip, days: updatedDays });
   };
 
+  // Validate event time range to prevent overlap
   const isValidTimeRange = (startTime, endTime) => {
     const start = parseTime(startTime);
     const end = parseTime(endTime);
@@ -174,7 +180,7 @@ function TripPage() {
     for (let event of day.events) {
       const existingStart = parseTime(event.startTime);
       const existingEnd = parseTime(event.endTime);
-      // Check for overlap
+      // Check overlap
       if (
         (start >= existingStart && start < existingEnd) ||
         (end > existingStart && end <= existingEnd) ||
@@ -191,19 +197,57 @@ function TripPage() {
     return hours * 60 + minutes;
   };
 
+  // Update trip in Firestore
   const updateTrip = async (updatedTrip) => {
     const docRef = doc(db, 'trips', trip.id);
     await updateDoc(docRef, updatedTrip);
     setTrip(updatedTrip);
   };
 
+  // Trigger the Add Event modal
   const handleShowAddEventModal = (dayIndex) => {
     setSelectedDayIndex(dayIndex);
     setShowAddEventModal(true);
   };
 
+  // Show preferences/collaborators modal
   const handleShowPreferencesModal = () => {
     setShowPreferencesModal(true);
+  };
+
+  // Utility function to render a single day card
+  const renderDayCard = (day, dayIndex) => {
+    return (
+      <Col md={4} key={dayIndex}>
+        <Card className="trip-card position-relative">
+          <Card.Body>
+            <Card.Title className="text-teal fw-bold fs-5">
+              {new Date(day.date + 'T00:00:00').toLocaleDateString('en-US', {
+                month: '2-digit',
+                day: '2-digit'
+              })}
+            </Card.Title>
+            {day.events && day.events.map((event, eventIndex) => (
+              <div key={eventIndex} className="d-flex justify-content-between align-items-center mb-2">
+                <p className="mb-0">
+                  <strong>{event.title}</strong> <br />
+                  <span className="text-muted">{event.startTime} - {event.endTime}</span>
+                </p>
+                <CloseButton onClick={() => handleRemoveEvent(dayIndex, eventIndex)} />
+              </div>
+            ))}
+
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => handleShowAddEventModal(dayIndex)}
+            >
+              Add Event
+            </Button>
+          </Card.Body>
+        </Card>
+      </Col>
+    );
   };
 
   if (!trip) {
@@ -235,37 +279,21 @@ function TripPage() {
               <Col>
                 <h1 className="text-center">Your Trip to {trip.name}</h1>
                 <h4 className="text-center">
-                  {new Date(trip.startDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })} - 
-                  {new Date(trip.endDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })}
+                  {new Date(trip.startDate).toLocaleDateString('en-US', {
+                    month: '2-digit',
+                    day: '2-digit'
+                  })} - 
+                  {new Date(trip.endDate).toLocaleDateString('en-US', {
+                    month: '2-digit',
+                    day: '2-digit'
+                  })}
                 </h4>
               </Col>
             </Row>
 
             {/* Days & Events */}
             <Row className="g-4">
-              {trip.days.map((day, dayIndex) => (
-                <Col key={dayIndex} md={4}>
-                  <Card className="dashboard-card trip-day-card">
-                    <Card.Body>
-                      <Card.Title className="fs-5">
-                        {new Date(day.date + 'T00:00:00').toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })}
-                      </Card.Title>
-                      {day.events && day.events.map((event, eventIndex) => (
-                        <div key={eventIndex} className="d-flex justify-content-between align-items-center mb-2">
-                          <p className="mb-0">
-                            <strong>{event.title}</strong> <br />
-                            <span className="text-muted">{event.startTime} - {event.endTime}</span>
-                          </p>
-                          <CloseButton onClick={() => handleRemoveEvent(dayIndex, eventIndex)} />
-                        </div>
-                      ))}
-                      <Button variant="primary" size="sm" onClick={() => handleShowAddEventModal(dayIndex)}>
-                        Add Event
-                      </Button>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              ))}
+              {trip.days.map((day, dayIndex) => renderDayCard(day, dayIndex))}
             </Row>
           </Container>
         </main>
@@ -328,6 +356,7 @@ function TripPage() {
               )}
             </div>
           ))}
+          {/* Only the trip owner can add collaborators */}
           {trip.userID === auth.currentUser.uid && (
             <Form onSubmit={handleAddCollaborator} className="mt-3">
               <Form.Group className="mb-3" controlId="formCollaborator">
@@ -340,11 +369,14 @@ function TripPage() {
                   required
                 />
               </Form.Group>
-              <Button variant="primary" type="submit">Add</Button>
+              <Button variant="primary" type="submit">
+                Add
+              </Button>
             </Form>
           )}
         </Modal.Body>
         <Modal.Footer>
+          {/* If the user is a collaborator, show a 'Leave Trip' button */}
           {collaboratorsData.some(collab => collab.userid === auth.currentUser.uid) && (
             <Button variant="danger" onClick={handleLeaveTrip}>
               Leave Trip

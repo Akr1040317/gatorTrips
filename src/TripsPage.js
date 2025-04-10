@@ -12,7 +12,17 @@ import Form from 'react-bootstrap/Form';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { auth, db } from './firebase';
-import { collection, addDoc, getDocs, deleteDoc, doc, query, where, getDoc, updateDoc } from 'firebase/firestore';
+import {
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  query,
+  where,
+  getDoc,
+  updateDoc
+} from 'firebase/firestore';
 import './index.css';
 
 function TripsPage() {
@@ -43,8 +53,14 @@ function TripsPage() {
         getDocs(sharedTripsQuery)
       ]);
 
-      const userTripsList = userTripsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      const sharedTripsList = sharedTripsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const userTripsList = userTripsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      const sharedTripsList = sharedTripsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
 
       setTrips(userTripsList);
       setSharedTrips(sharedTripsList);
@@ -60,16 +76,16 @@ function TripsPage() {
       return;
     }
 
-    const newTrip = { 
-      name: tripName, 
-      startDate: startDate.toISOString(), 
-      endDate: endDate.toISOString(), 
+    const newTrip = {
+      name: tripName,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
       userID: auth.currentUser.uid,
       collaborators: [],
       days: []
     };
 
-    const docRef = await addDoc(collection(db, "trips"), newTrip);
+    const docRef = await addDoc(collection(db, 'trips'), newTrip);
     setTrips([...trips, { ...newTrip, id: docRef.id }]);
     setShow(false);
     setTripName('');
@@ -81,7 +97,7 @@ function TripsPage() {
   const handleRemoveTrip = async (id) => {
     const confirmRemoval = window.confirm("Are you sure you want to remove this trip?");
     if (confirmRemoval) {
-      const tripRef = doc(db, "trips", id);
+      const tripRef = doc(db, 'trips', id);
       await deleteDoc(tripRef);
       setTrips(trips.filter(trip => trip.id !== id));
     }
@@ -106,6 +122,40 @@ function TripsPage() {
   // Show/hide new trip modal
   const handleShowModal = () => setShow(true);
   const handleCloseModal = () => setShow(false);
+
+  // Reusable card component for a single trip
+  const renderTripCard = (tripObj, isShared = false) => {
+    // This function helps avoid repetitive code
+    const removeOrLeave = isShared ? () => handleLeaveTrip(tripObj.id) : () => handleRemoveTrip(tripObj.id);
+
+    return (
+      <Col md={4} key={tripObj.id}>
+        <Card className="trip-card position-relative">
+          {/* The "X" (CloseButton) to remove or leave the trip */}
+          <CloseButton
+            className="position-absolute top-0 end-0 m-1"
+            onClick={removeOrLeave}
+          />
+          <Card.Body>
+            <Card.Title className="text-teal fw-bold fs-5">{tripObj.name}</Card.Title>
+            <Card.Text className="text-muted">
+              {new Date(tripObj.startDate).toLocaleDateString('en-US', {
+                month: '2-digit',
+                day: '2-digit'
+              })} -{' '}
+              {new Date(tripObj.endDate).toLocaleDateString('en-US', {
+                month: '2-digit',
+                day: '2-digit'
+              })}
+            </Card.Text>
+            <Link to={`/trip/${tripObj.id}`} className="btn btn-primary">
+              View Trip
+            </Link>
+          </Card.Body>
+        </Card>
+      </Col>
+    );
+  };
 
   return (
     <div className="dashboard-container">
@@ -141,26 +191,7 @@ function TripsPage() {
             </Row>
             {trips.length > 0 ? (
               <Row className="g-3">
-                {trips.map((trip) => (
-                  <Col md={4} key={trip.id}>
-                    <Card className="trip-card position-relative">
-                      <CloseButton
-                        className="position-absolute top-0 end-0 m-1"
-                        onClick={() => handleRemoveTrip(trip.id)}
-                      />
-                      <Card.Body>
-                        <Card.Title>{trip.name}</Card.Title>
-                        <Card.Text>
-                          {new Date(trip.startDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })} -{' '}
-                          {new Date(trip.endDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })}
-                        </Card.Text>
-                        <Link to={`/trip/${trip.id}`} className="btn btn-primary">
-                          View Trip
-                        </Link>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                ))}
+                {trips.map((trip) => renderTripCard(trip, false))}
               </Row>
             ) : (
               <Row>
@@ -178,26 +209,7 @@ function TripsPage() {
             </Row>
             {sharedTrips.length > 0 ? (
               <Row className="g-3">
-                {sharedTrips.map((trip) => (
-                  <Col md={4} key={trip.id}>
-                    <Card className="trip-card position-relative">
-                      <CloseButton
-                        className="position-absolute top-0 end-0 m-1"
-                        onClick={() => handleLeaveTrip(trip.id)}
-                      />
-                      <Card.Body>
-                        <Card.Title>{trip.name}</Card.Title>
-                        <Card.Text>
-                          {new Date(trip.startDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })} -{' '}
-                          {new Date(trip.endDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })}
-                        </Card.Text>
-                        <Link to={`/trip/${trip.id}`} className="btn btn-primary">
-                          View Trip
-                        </Link>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                ))}
+                {sharedTrips.map((trip) => renderTripCard(trip, true))}
               </Row>
             ) : (
               <Row>
