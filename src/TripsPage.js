@@ -1,3 +1,4 @@
+// TripsPage.js
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
@@ -22,7 +23,6 @@ function TripsPage() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
-  // Fetch trips when component mounts
   useEffect(() => {
     const fetchTrips = async () => {
       const user = auth.currentUser;
@@ -38,8 +38,10 @@ function TripsPage() {
         where('collaborators', 'array-contains', user.uid)
       );
 
-      const userTripsSnapshot = await getDocs(userTripsQuery);
-      const sharedTripsSnapshot = await getDocs(sharedTripsQuery);
+      const [userTripsSnapshot, sharedTripsSnapshot] = await Promise.all([
+        getDocs(userTripsQuery),
+        getDocs(sharedTripsQuery)
+      ]);
 
       const userTripsList = userTripsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       const sharedTripsList = sharedTripsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -50,7 +52,7 @@ function TripsPage() {
     fetchTrips();
   }, []);
 
-  // Handle creating a new trip
+  // Create new trip
   const handleAddTrip = async (e) => {
     e.preventDefault();
     if (!startDate || !endDate) {
@@ -75,7 +77,7 @@ function TripsPage() {
     setEndDate(null);
   };
 
-  // Handle removing a trip
+  // Remove owned trip
   const handleRemoveTrip = async (id) => {
     const confirmRemoval = window.confirm("Are you sure you want to remove this trip?");
     if (confirmRemoval) {
@@ -85,7 +87,7 @@ function TripsPage() {
     }
   };
 
-  // Handle leaving a shared trip
+  // Leave a shared trip
   const handleLeaveTrip = async (tripId) => {
     const confirmLeave = window.confirm("Are you sure you want to leave this trip?");
     if (confirmLeave) {
@@ -101,81 +103,114 @@ function TripsPage() {
     }
   };
 
-  // Handle showing modal
+  // Show/hide new trip modal
   const handleShowModal = () => setShow(true);
-
-  // Handle closing modal
   const handleCloseModal = () => setShow(false);
 
   return (
-    <>
-      <Container className="my-5">
-        <Row className="mb-4">
-          <Col>
-            <h1 className="text-center">Your Trips</h1>
-          </Col>
-        </Row>
-        <Row className="mb-4">
-          <Col className="text-center">
-            <Button className="btn-cta" onClick={handleShowModal}>Plan A New Trip</Button>
-          </Col>
-        </Row>
-        {trips.length > 0 ? (
-          <Row className="g-3">
-            {trips.map((trip) => (
-              <Col md={4} key={trip.id}>
-                <Card className="text-center position-relative">
-                  <CloseButton className="position-absolute top-0 end-0 m-1" onClick={() => handleRemoveTrip(trip.id)} />
-                  <Card.Body>
-                    <Card.Title>{trip.name}</Card.Title>
-                    <Card.Text>
-                      {new Date(trip.startDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })} - {new Date(trip.endDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })}
-                    </Card.Text>
-                    <Link to={`/trip/${trip.id}`} className="btn btn-primary">View Trip</Link>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        ) : (
-          <Row className="my-4">
-            <Col>
-              <p className="text-center">No trips planned yet. Click "Plan A New Trip" to get started.</p>
-            </Col>
-          </Row>
-        )}
+    <div className="dashboard-container">
+      {/* Sidebar Navigation */}
+      <aside className="dashboard-sidebar">
+        <h2>Your Trips</h2>
+        <Link to="/trips" className="nav-link">Home</Link>
+        <span className="nav-link" onClick={handleShowModal}>
+          Plan A New Trip
+        </span>
+      </aside>
 
-        <Row className="mb-4">
-          <Col>
-            <h1 className="text-center">Shared Trips</h1>
-          </Col>
-        </Row>
-        {sharedTrips.length > 0 ? (
-          <Row className="g-3">
-            {sharedTrips.map((trip) => (
-              <Col md={4} key={trip.id}>
-                <Card className="text-center position-relative">
-                  <CloseButton className="position-absolute top-0 end-0 m-1" onClick={() => handleLeaveTrip(trip.id)} />
-                  <Card.Body>
-                    <Card.Title>{trip.name}</Card.Title>
-                    <Card.Text>
-                      {new Date(trip.startDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })} - {new Date(trip.endDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })}
-                    </Card.Text>
-                    <Link to={`/trip/${trip.id}`} className="btn btn-primary">View Trip</Link>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        ) : (
-          <Row className="my-4">
-            <Col>
-              <p className="text-center">No shared trips available.</p>
-            </Col>
-          </Row>
-        )}
-      </Container>
+      {/* Main Section */}
+      <div className="dashboard-main">
+        <header className="dashboard-header">
+          <div>
+            <h1 className="m-0">Your Trips</h1>
+          </div>
+          <div>
+            <Button variant="primary" onClick={handleShowModal}>
+              + New Trip
+            </Button>
+          </div>
+        </header>
 
+        <main className="dashboard-content">
+          <Container>
+            {/* Owned Trips */}
+            <Row className="my-4">
+              <Col>
+                <h2 className="mb-4">My Trips</h2>
+              </Col>
+            </Row>
+            {trips.length > 0 ? (
+              <Row className="g-3">
+                {trips.map((trip) => (
+                  <Col md={4} key={trip.id}>
+                    <Card className="trip-card position-relative">
+                      <CloseButton
+                        className="position-absolute top-0 end-0 m-1"
+                        onClick={() => handleRemoveTrip(trip.id)}
+                      />
+                      <Card.Body>
+                        <Card.Title>{trip.name}</Card.Title>
+                        <Card.Text>
+                          {new Date(trip.startDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })} -{' '}
+                          {new Date(trip.endDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })}
+                        </Card.Text>
+                        <Link to={`/trip/${trip.id}`} className="btn btn-primary">
+                          View Trip
+                        </Link>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            ) : (
+              <Row>
+                <Col>
+                  <p className="text-center mt-2">No trips yet. Click “+ New Trip” to start planning.</p>
+                </Col>
+              </Row>
+            )}
+
+            {/* Shared Trips */}
+            <Row className="my-5">
+              <Col>
+                <h2 className="mb-4">Shared Trips</h2>
+              </Col>
+            </Row>
+            {sharedTrips.length > 0 ? (
+              <Row className="g-3">
+                {sharedTrips.map((trip) => (
+                  <Col md={4} key={trip.id}>
+                    <Card className="trip-card position-relative">
+                      <CloseButton
+                        className="position-absolute top-0 end-0 m-1"
+                        onClick={() => handleLeaveTrip(trip.id)}
+                      />
+                      <Card.Body>
+                        <Card.Title>{trip.name}</Card.Title>
+                        <Card.Text>
+                          {new Date(trip.startDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })} -{' '}
+                          {new Date(trip.endDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })}
+                        </Card.Text>
+                        <Link to={`/trip/${trip.id}`} className="btn btn-primary">
+                          View Trip
+                        </Link>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            ) : (
+              <Row>
+                <Col>
+                  <p className="text-center mt-2">No shared trips available.</p>
+                </Col>
+              </Row>
+            )}
+          </Container>
+        </main>
+      </div>
+
+      {/* Modal for Adding a New Trip */}
       <Modal show={show} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Plan A New Trip</Modal.Title>
@@ -225,7 +260,7 @@ function TripsPage() {
           </Form>
         </Modal.Body>
       </Modal>
-    </>
+    </div>
   );
 }
 
