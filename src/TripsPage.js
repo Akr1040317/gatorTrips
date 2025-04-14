@@ -163,9 +163,7 @@ function TripsPage() {
       <aside className="dashboard-sidebar">
         <h2>Your Trips</h2>
         <Link to="/trips" className="nav-link">Home</Link>
-        <span className="nav-link" onClick={handleShowModal}>
-          Plan A New Trip
-        </span>
+        <a className="nav-link" onClick={handleShowModal}>Plan A New Trip</a>
       </aside>
 
       {/* Main Section */}

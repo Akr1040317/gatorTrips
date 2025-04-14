@@ -493,4 +493,11 @@ button {
   color: #6c757d;
 }
 
+.modal-button {
+  cursor: pointer;
+}
+
+.modal-button a:hover {
+  color: var(--color-yellow);
+}
 

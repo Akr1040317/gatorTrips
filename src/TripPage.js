@@ -25,6 +25,9 @@ function TripPage() {
   const [eventEndTime, setEventEndTime] = useState('');
   const [collaborator, setCollaborator] = useState('');
   const [collaboratorsData, setCollaboratorsData] = useState([]);
+  const [eventDuration, setEventDuration] = useState('');
+  const [idealTimeOfDay, setIdealTimeOfDay] = useState('');
+  const [knowsExactTime, setKnowsExactTime] = useState(true);
 
   useEffect(() => {
     const fetchAndInitializeTrip = async () => {
@@ -144,15 +147,74 @@ function TripPage() {
     navigate('/trips');
   };
 
+  const findAvailableTimeSlot = (duration, idealTimeOfDay) => {
+    const day = trip.days[selectedDayIndex];
+
+    duration = parseInt(duration);
+
+
+    const timeRanges = {
+      morning: { start: 8 * 60, end: 12 * 60 }, // 8:00 AM - 12:00 PM
+      afternoon: { start: 12 * 60, end: 17 * 60 }, // 12:00 PM - 5:00 PM
+      evening: { start: 17 * 60, end: 21 * 60 }, // 5:00 PM - 9:00 PM
+    };  
+
+    const { start: idealStart, end: idealEnd } = timeRanges[idealTimeOfDay];
+
+
+    let start = idealStart;
+    let end = idealStart + duration;
+
+    while(!isValidTimeRange(formatTime(start), formatTime(end))) {
+      start += 15;
+      end = start + duration;
+      if(end > timeRanges[idealTimeOfDay].end) {
+        return null;
+      }
+    }
+
+    console.log(formatTime(start));
+    console.log(formatTime(end));
+
+    return {
+      title: eventTitle,
+      startTime: formatTime(start),
+      endTime: formatTime(end)
+    };
+
+  }
+
+  const formatTime = (minutes) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+  };
+
   // Add a new event to a day
   const handleAddEvent = (e) => {
     e.preventDefault();
-    if (!isValidTimeRange(eventStartTime, eventEndTime)) {
-      alert('Invalid time range or overlapping events.');
-      return;
+    let newEvent = { title: eventTitle, startTime: eventStartTime, endTime: eventEndTime };
+    if (eventStartTime && eventEndTime) {
+      if (!isValidTimeRange(eventStartTime, eventEndTime)) {
+        alert('Invalid time range or overlapping events.');
+        return;
+      }
+  
+      newEvent = { title: eventTitle, startTime: eventStartTime, endTime: eventEndTime };
+    } 
+    else if (eventDuration && idealTimeOfDay) {
+      newEvent = findAvailableTimeSlot(eventDuration, idealTimeOfDay);
+      if (!newEvent) {
+        alert('No suitable time slot available.');
+        return;
+      }
+    } 
+    else {
+      alert('Please provide either a time range or a duration and ideal time of day.');
     }
 
-    const newEvent = { title: eventTitle, startTime: eventStartTime, endTime: eventEndTime };
+    console.log(newEvent);
+
     const updatedDays = [...trip.days];
     updatedDays[selectedDayIndex].events.push(newEvent);
 
@@ -316,24 +378,62 @@ function TripPage() {
                 required
               />
             </Form.Group>
-            <Form.Group className="mb-3" controlId="formEventStartTime">
-              <Form.Label>Start Time</Form.Label>
-              <Form.Control
-                type="time"
-                value={eventStartTime}
-                onChange={(e) => setEventStartTime(e.target.value)}
-                required
+            <Form.Group className="mb-3" controlId="formKnowsExactTime">
+              <Form.Check
+                type="checkbox"
+                label="I know the exact time of the event"
+                checked={knowsExactTime}
+                onChange={(e) => setKnowsExactTime(e.target.checked)}
               />
             </Form.Group>
-            <Form.Group className="mb-3" controlId="formEventEndTime">
-              <Form.Label>End Time</Form.Label>
-              <Form.Control
-                type="time"
-                value={eventEndTime}
-                onChange={(e) => setEventEndTime(e.target.value)}
-                required
-              />
-            </Form.Group>
+            {knowsExactTime ? (
+              <>
+                <Form.Group className="mb-3" controlId="formEventStartTime">
+                  <Form.Label>Start Time</Form.Label>
+                  <Form.Control
+                    type="time"
+                    value={eventStartTime}
+                    onChange={(e) => setEventStartTime(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formEventEndTime">
+                  <Form.Label>End Time</Form.Label>
+                  <Form.Control
+                    type="time"
+                    value={eventEndTime}
+                    onChange={(e) => setEventEndTime(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </>
+            ) : (
+              <>
+                <Form.Group className="mb-3" controlId="formEventDuration">
+                  <Form.Label>Duration (minutes)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    placeholder="Enter duration in minutes"
+                    value={eventDuration}
+                    onChange={(e) => setEventDuration(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formIdealTimeOfDay">
+                  <Form.Label>Ideal Time of Day</Form.Label>
+                  <Form.Select  
+                    value={idealTimeOfDay}
+                    onChange={(e) => setIdealTimeOfDay(e.target.value)}
+                    required
+                  >
+                    <option value="">Select</option>
+                    <option value="morning">Morning</option>
+                    <option value="afternoon">Afternoon</option>
+                    <option value="evening">Evening</option>
+                  </Form.Select>
+                </Form.Group>
+              </>
+            )}
             <Button variant="primary" type="submit">
               Save Event
             </Button>
