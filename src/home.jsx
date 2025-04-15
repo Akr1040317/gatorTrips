@@ -52,7 +52,7 @@ function Home() {
                 Plan Your Entire Journey <br /> in One Place
               </h2>
               <p className="text-light">
-                From flights and accommodations to curated itineraries—Gator Trips
+                Traveling solo or with others, Gator Trips
                 makes travel planning simple and stress-free.
               </p>
             </Col>
@@ -79,29 +79,18 @@ function Home() {
         <Container>
           <h2 className="section-title text-center">KEY FEATURES</h2>
           <Row className="mt-5">
-            <Col md={3}>
+            <Col md={4}>
               <Card className="feature-card">
                 <Card.Img variant="top" src={resort} />
                 <Card.Body>
                   <Card.Title>All-in-One Travel Planner</Card.Title>
                   <Card.Text>
-                    Seamlessly integrates transportation, accommodations, and activities into one platform.
+                    Seamlessly integrates all things travel into one platform.
                   </Card.Text>
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={3}>
-              <Card className="feature-card">
-                <Card.Img variant="top" src={museum} />
-                <Card.Body>
-                  <Card.Title>Smart-Route Planning</Card.Title>
-                  <Card.Text>
-                    Generates ideal travel routes, considering travel times, locations, and layovers.
-                  </Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={3}>
+            <Col md={4}>
               <Card className="feature-card">
                 <Card.Img variant="top" src={beachLounging} />
                 <Card.Body>
@@ -112,7 +101,7 @@ function Home() {
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={3}>
+            <Col md={4}>
               <Card className="feature-card">
                 <Card.Img variant="top" src={cliffside} />
                 <Card.Body>
@@ -136,15 +125,7 @@ function Home() {
               <ol className="how-list">
                 <li>
                   <strong>Enter Trip Details</strong>
-                  <p>Start & end points, plus optional stops (or let us suggest).</p>
-                </li>
-                <li>
-                  <strong>Choose Transportation</strong>
-                  <p>Fastest, cheapest, or minimal transfers—flights, trains, cabs, all in one place.</p>
-                </li>
-                <li>
-                  <strong>Pick Accommodations</strong>
-                  <p>Recommendations near each stop, filter by budget or style.</p>
+                  <p>Enter different trip events and times, or let us schedule the events ourselves.</p>
                 </li>
                 <li>
                   <strong>Collaborate & Finalize</strong>
@@ -176,34 +157,13 @@ function Home() {
               <div className="faq-list">
                 <h5>Is Gator Trips free to use?</h5>
                 <p>
-                  Yes! You can plan your entire trip—flights, accommodations, activities—
-                  without any cost.
-                </p>
-
-                <h5>How do I plan a multi-stop trip?</h5>
-                <p>
-                  Simply enter your start and end points, then add any destinations
-                  in between. Our system will suggest the best routes based on your
-                  preferences.
+                  Yes! You can plan your entire trip without any cost.
                 </p>
 
                 <h5>Can I collaborate with friends or family?</h5>
                 <p>
                   Absolutely. Invite others to your itinerary so they can view or edit stops
                   and activities.
-                </p>
-
-                <h5>What if I want the fastest or cheapest route?</h5>
-                <p>
-                  We compare different travel options—flights, trains, cabs—and let you
-                  choose the fastest route, the least expensive route, or the one with the
-                  fewest transfers.
-                </p>
-
-                <h5>Does Gator Trips help with accommodations?</h5>
-                <p>
-                  Yes. We’ll recommend hotels or rentals near your chosen stops, and you
-                  can filter them by budget, style, or amenities.
                 </p>
 
                 <h5>Can I update my plans on the go?</h5>
