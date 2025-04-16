@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@react-google-maps/api": "^2.20.6",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
@@ -13,8 +14,9 @@
     "gatortrips": "file:",
     "react": "^19.1.0",
     "react-bootstrap": "^2.10.9",
-    "react-datepicker": "^8.2.1",
+    "react-datepicker": "^8.3.0",
     "react-dom": "^19.1.0",
+    "react-google-autocomplete": "^2.7.5",
     "react-router-dom": "^7.4.1",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"

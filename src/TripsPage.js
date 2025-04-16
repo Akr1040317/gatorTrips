@@ -1,4 +1,3 @@
-// TripsPage.js
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
@@ -68,7 +67,6 @@ function TripsPage() {
     fetchTrips();
   }, []);
 
-  // Create new trip
   const handleAddTrip = async (e) => {
     e.preventDefault();
     if (!startDate || !endDate) {
@@ -93,7 +91,6 @@ function TripsPage() {
     setEndDate(null);
   };
 
-  // Remove owned trip
   const handleRemoveTrip = async (id) => {
     const confirmRemoval = window.confirm("Are you sure you want to remove this trip?");
     if (confirmRemoval) {
@@ -103,7 +100,6 @@ function TripsPage() {
     }
   };
 
-  // Leave a shared trip
   const handleLeaveTrip = async (tripId) => {
     const confirmLeave = window.confirm("Are you sure you want to leave this trip?");
     if (confirmLeave) {
@@ -119,19 +115,15 @@ function TripsPage() {
     }
   };
 
-  // Show/hide new trip modal
   const handleShowModal = () => setShow(true);
   const handleCloseModal = () => setShow(false);
 
-  // Reusable card component for a single trip
   const renderTripCard = (tripObj, isShared = false) => {
-    // This function helps avoid repetitive code
     const removeOrLeave = isShared ? () => handleLeaveTrip(tripObj.id) : () => handleRemoveTrip(tripObj.id);
 
     return (
       <Col md={4} key={tripObj.id}>
         <Card className="trip-card position-relative">
-          {/* The "X" (CloseButton) to remove or leave the trip */}
           <CloseButton
             className="position-absolute top-0 end-0 m-1"
             onClick={removeOrLeave}
@@ -159,14 +151,12 @@ function TripsPage() {
 
   return (
     <div className="dashboard-container">
-      {/* Sidebar Navigation */}
       <aside className="dashboard-sidebar">
         <h2>Your Trips</h2>
         <Link to="/trips" className="nav-link">Home</Link>
-        <a className="nav-link" onClick={handleShowModal}>Plan A New Trip</a>
+        <button className="nav-link" onClick={handleShowModal}>Plan A New Trip</button>
       </aside>
 
-      {/* Main Section */}
       <div className="dashboard-main">
         <header className="dashboard-header">
           <div>
@@ -181,7 +171,6 @@ function TripsPage() {
 
         <main className="dashboard-content">
           <Container>
-            {/* Owned Trips */}
             <Row className="my-4">
               <Col>
                 <h2 className="mb-4">My Trips</h2>
@@ -199,7 +188,6 @@ function TripsPage() {
               </Row>
             )}
 
-            {/* Shared Trips */}
             <Row className="my-5">
               <Col>
                 <h2 className="mb-4">Shared Trips</h2>
@@ -220,7 +208,6 @@ function TripsPage() {
         </main>
       </div>
 
-      {/* Modal for Adding a New Trip */}
       <Modal show={show} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Plan A New Trip</Modal.Title>

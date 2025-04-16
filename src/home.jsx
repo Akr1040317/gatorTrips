@@ -1,6 +1,4 @@
-import React, { useEffect } from 'react';
-import { db } from './firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Container, Row, Col, Card } from 'react-bootstrap';
 import { useAuth } from './AuthContext';
@@ -96,7 +94,7 @@ function Home() {
                 <Card.Body>
                   <Card.Title>Itinerary Management</Card.Title>
                   <Card.Text>
-                    Automatically schedules activities, ensuring efficient use of time and buffer periods.
+                    Automatically schedules activities and optimizes routes based on location.
                   </Card.Text>
                 </Card.Body>
               </Card>
@@ -125,7 +123,7 @@ function Home() {
               <ol className="how-list">
                 <li>
                   <strong>Enter Trip Details</strong>
-                  <p>Enter different trip events and times, or let us schedule the events ourselves.</p>
+                  <p>Enter different trip events, times, and locations, or let us optimize the schedule.</p>
                 </li>
                 <li>
                   <strong>Collaborate & Finalize</strong>
@@ -168,7 +166,7 @@ function Home() {
 
                 <h5>Can I update my plans on the go?</h5>
                 <p>
-                  We are currently working on this feature but hope to have it soon!
+                  Yes! Add or edit events, and optimize your daily itinerary based on locations anytime.
                 </p>
               </div>
             </Col>

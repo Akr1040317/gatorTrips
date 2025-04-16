@@ -501,3 +501,56 @@ button {
   color: var(--color-yellow);
 }
 
+
+
+/* ... (previous styles unchanged) ... */
+
+/* Modal Autocomplete Fixes */
+.modal-autocomplete {
+  z-index: 1050; /* Ensure modal is above other elements */
+}
+
+.modal-autocomplete .modal-content {
+  overflow: visible; /* Allow dropdown to extend outside modal */
+}
+
+.autocomplete-wrapper {
+  position: relative;
+}
+
+.autocomplete-input {
+  width: 100%;
+}
+
+.pac-container {
+  z-index: 1055 !important; /* Above modal */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  margin-top: 2px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.pac-item {
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+}
+
+.pac-item:hover {
+  background-color: #f0f0f0;
+}
+
+.pac-item-query {
+  font-weight: 600;
+  color: #0D5C63; /* Match --color-teal */
+}
+
+/* Ensure modal body has enough space */
+.modal-body {
+  position: relative;
+  padding-bottom: 20px;
+}
+
+/* ... (rest of the previous styles unchanged) ... */
