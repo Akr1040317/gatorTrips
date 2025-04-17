@@ -1,10 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
-/*============================================
-=            CSS Variables & Reset           =
-============================================*/
 :root {
-  /* Primary Colors */
   --color-teal: #0D5C63;
   --color-dark-teal: #09484A;
   --color-white: #ffffff;
@@ -30,7 +26,6 @@ body {
   scroll-behavior: smooth;
 }
 
-/* Global Link Styles */
 a {
   color: inherit;
   text-decoration: none;
@@ -41,9 +36,6 @@ a:hover {
   color: var(--color-yellow);
 }
 
-/*============================================
-=               Navbar Styling               =
-============================================*/
 .navbar {
   background-color: var(--color-teal);
   padding: 1rem 0;
@@ -69,9 +61,6 @@ a:hover {
   color: var(--color-yellow);
 }
 
-/*============================================
-=              Hero Section Style            =
-============================================*/
 .hero-section {
   position: relative;
   background: url('./assets/images/hero-bg.jpg') center center / cover no-repeat;
@@ -105,7 +94,6 @@ a:hover {
   margin-bottom: 1.5rem;
 }
 
-/* Call-to-Action Button */
 .btn-cta {
   background-color: var(--color-orange);
   border: none;
@@ -121,9 +109,6 @@ a:hover {
   background-color: #e38f00;
 }
 
-/*============================================
-=               Section Styling              =
-============================================*/
 .section {
   padding: 60px 0;
 }
@@ -163,9 +148,6 @@ a:hover {
   color: var(--color-white) !important;
 }
 
-/*============================================
-=            Journey Section Styles          =
-============================================*/
 .section-journey p {
   font-size: 1rem;
   line-height: 1.5;
@@ -189,9 +171,6 @@ a:hover {
   align-self: flex-end;
 }
 
-/*============================================
-=           Features Section Styling         =
-============================================*/
 .section-features .section-title {
   text-align: center;
   position: relative;
@@ -237,9 +216,6 @@ a:hover {
   padding: 0 1rem 1rem;
 }
 
-/*============================================
-=               How It Works                 =
-============================================*/
 .section-how-it-works .how-list {
   list-style: none;
   padding-left: 0;
@@ -258,18 +234,12 @@ a:hover {
   color: var(--color-white);
 }
 
-/*============================================
-=                   FAQ Section              =
-============================================*/
 .section-faq h5 {
   font-size: 1.1rem;
   margin-top: 1rem;
   color: var(--color-gray);
 }
 
-/*============================================
-=              Contact Section               =
-============================================*/
 .section-contact .contact-list {
   list-style: none;
   padding-left: 0;
@@ -282,9 +252,6 @@ a:hover {
   font-size: 1rem;
 }
 
-/*============================================
-=                Utility Classes             =
-============================================*/
 img.rounded {
   border-radius: 10px;
 }
@@ -293,9 +260,6 @@ img.rounded {
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 }
 
-/*============================================
-=              Authentication Card           =
-============================================*/
 .auth-card {
   background-color: var(--color-white);
   padding: 2rem;
@@ -312,9 +276,6 @@ img.rounded {
   color: #dc3545 !important;
 }
 
-/*============================================
-=                Custom Button Styles        =
-============================================*/
 button {
   padding: 10px 20px;
   font-size: 16px;
@@ -335,9 +296,6 @@ button {
   border-color: #bd2130;
 }
 
-/*============================================
-=              Shared Trip Card              =
-============================================*/
 .shared-trip-card {
   border-left: 6px solid var(--color-orange);
   background-color: var(--color-white);
@@ -346,37 +304,89 @@ button {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-/*============================================
-=               Responsiveness               =
-============================================*/
 @media (max-width: 768px) {
   .navbar-nav .nav-link {
     margin: 0 0.8rem;
     font-size: 1rem;
   }
-
   .hero-content h1 {
     font-size: 2.5rem;
   }
-
   .section-title,
   .section-title-light {
     font-size: 2rem;
   }
-
   .feature-card img {
     height: 150px;
   }
-
   .journey-img-bottom {
     width: 100%;
   }
 }
 
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+}
 
-/*==================================================
-=         Dashboard Layout & Styling         =
-==================================================*/
+.sidebar {
+  width: 200px;
+  background: #f8f9fa;
+  padding: 20px;
+  position: fixed;
+  height: 100%;
+  border-right: 1px solid #dee2e6;
+}
+
+.sidebar h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.nav-link {
+  display: block;
+  color: #007bff;
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+.main {
+  margin-left: 200px;
+  flex: 1;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.content {
+  padding: 20px;
+}
+
+h2, h3 {
+  text-align: center;
+}
+
 .dashboard-container {
   display: flex;
   min-height: 100vh;
@@ -446,18 +456,15 @@ button {
   .dashboard-container {
     flex-direction: column;
   }
-  
   .dashboard-sidebar {
     width: 100%;
     flex-direction: row;
     overflow-x: auto;
     padding: 10px 20px;
   }
-  
   .dashboard-sidebar h2 {
     display: none;
   }
-  
   .dashboard-sidebar a {
     padding: 10px;
     flex-shrink: 0;
@@ -501,17 +508,12 @@ button {
   color: var(--color-yellow);
 }
 
-
-
-/* ... (previous styles unchanged) ... */
-
-/* Modal Autocomplete Fixes */
 .modal-autocomplete {
-  z-index: 1050; /* Ensure modal is above other elements */
+  z-index: 1050;
 }
 
 .modal-autocomplete .modal-content {
-  overflow: visible; /* Allow dropdown to extend outside modal */
+  overflow: visible;
 }
 
 .autocomplete-wrapper {
@@ -523,7 +525,7 @@ button {
 }
 
 .pac-container {
-  z-index: 1055 !important; /* Above modal */
+  z-index: 1055 !important;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -544,13 +546,10 @@ button {
 
 .pac-item-query {
   font-weight: 600;
-  color: #0D5C63; /* Match --color-teal */
+  color: #0D5C63;
 }
 
-/* Ensure modal body has enough space */
 .modal-body {
   position: relative;
   padding-bottom: 20px;
 }
-
-/* ... (rest of the previous styles unchanged) ... */
