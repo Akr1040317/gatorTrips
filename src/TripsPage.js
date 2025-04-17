@@ -31,6 +31,8 @@ function TripsPage() {
   const [tripName, setTripName] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [eventType, setEventType] = useState('');
+
 
   useEffect(() => {
     const fetchTrips = async () => {
@@ -80,7 +82,8 @@ function TripsPage() {
       endDate: endDate.toISOString(),
       userID: auth.currentUser.uid,
       collaborators: [],
-      days: []
+      days: [],
+      eventType: eventType
     };
 
     const docRef = await addDoc(collection(db, 'trips'), newTrip);
@@ -224,6 +227,22 @@ function TripsPage() {
                 required
               />
             </Form.Group>
+            <Form.Group className="mb-3" controlId="formEventType">
+              <Form.Label>Event Type</Form.Label>
+              <Form.Select
+                value={eventType}
+                onChange={(e) => setEventType(e.target.value)}
+                required>
+              <option value="">Select event type</option>
+              <option value="shopping">Shopping</option>
+              <option value="eating">Eating</option>
+              <option value="tourism">Tourism</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="relaxation">Relaxation</option>
+              <option value="other">Other</option>
+            </Form.Select>
+            </Form.Group>
+
             <Form.Group className="mb-3" controlId="formStartDate">
               <Form.Label>Start Date</Form.Label>
               <DatePicker
