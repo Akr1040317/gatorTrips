@@ -58,7 +58,8 @@ function TripPage() {
     end.setUTCHours(0, 0, 0, 0);
 
     const days = [];
-    for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+    for (let d = new Date(start); d <= end; ) {
+      d.setUTCDate(d.getUTCDate() + 1);
       days.push({ date: d.toISOString().split('T')[0], events: [] });
     }
     return { ...tripData, days };
