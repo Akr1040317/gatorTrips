@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { doc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from './firebase';
-import { Container, Row, Col, Card, Form, Button, Modal, CloseButton, Tabs, Tab } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Modal, CloseButton, Tabs, Tab, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { LoadScript, GoogleMap, Polyline, Marker, Autocomplete } from '@react-google-maps/api';
 import './index.css';
 
@@ -324,9 +324,37 @@ function TripPage() {
           <Button size="sm" className="me-2" onClick={() => { setSelectedDayIndex(dayIdx); setShowAddEventModal(true); }}>
             Add Event
           </Button>
-          <Button size="sm" variant="secondary" disabled={day.events.length < 3} onClick={() => handleOptimizeDay(dayIdx)}>
-            Optimize Route
-          </Button>
+          <div style={{ display: 'inline-block' }}>
+            {day.events.length < 3 ? (
+              <OverlayTrigger
+                placement="top"
+                overlay={
+                  <Tooltip>
+                    You need at least 3 events before optimizing the Trip
+                  </Tooltip>
+                }
+              >
+                <span>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled
+                    style={{ pointerEvents: 'none' }}
+                  >
+                    Optimize Route
+                  </Button>
+                </span>
+              </OverlayTrigger>
+            ) : (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => handleOptimizeDay(dayIdx)}
+              >
+                Optimize Route
+              </Button>
+            )}
+          </div>
           {day.optimizedRoute && (
             <>
               <h4>Optimized Route</h4>
