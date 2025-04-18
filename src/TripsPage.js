@@ -32,7 +32,7 @@ function TripsPage() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
-
+  //Fetch all of the user's Trips and sharedTrips
   useEffect(() => {
     const fetchTrips = async () => {
       const user = auth.currentUser;
@@ -68,6 +68,7 @@ function TripsPage() {
     fetchTrips();
   }, []);
 
+  //Function for adding a new trip
   const handleAddTrip = async (e) => {
     e.preventDefault();
     if (!startDate || !endDate) {
@@ -75,6 +76,7 @@ function TripsPage() {
       return;
     }
 
+    //Create new trip
     const newTrip = {
       name: tripName,
       startDate: startDate.toISOString(),
@@ -84,6 +86,8 @@ function TripsPage() {
       days: []
     };
 
+
+    //Add trip to db
     const docRef = await addDoc(collection(db, 'trips'), newTrip);
     setTrips([...trips, { ...newTrip, id: docRef.id }]);
     setShow(false);
@@ -92,6 +96,7 @@ function TripsPage() {
     setEndDate(null);
   };
 
+  //Function for removing a trip
   const handleRemoveTrip = async (id) => {
     const confirmRemoval = window.confirm("Are you sure you want to remove this trip?");
     if (confirmRemoval) {
@@ -101,6 +106,7 @@ function TripsPage() {
     }
   };
 
+  //Function for leaving a shared trip
   const handleLeaveTrip = async (tripId) => {
     const confirmLeave = window.confirm("Are you sure you want to leave this trip?");
     if (confirmLeave) {
@@ -119,6 +125,8 @@ function TripsPage() {
   const handleShowModal = () => setShow(true);
   const handleCloseModal = () => setShow(false);
 
+
+  //Function for rendering each trip card
   const renderTripCard = (tripObj, isShared = false) => {
     const removeOrLeave = isShared ? () => handleLeaveTrip(tripObj.id) : () => handleRemoveTrip(tripObj.id);
 
