@@ -13,11 +13,12 @@ function TripPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [trip, setTrip] = useState(null);
-  const [showAddEventModal, setShowAddEventModal] = useState(false);
-  const [showPreferencesModal, setShowPreferencesModal] = useState(false);
-  const [selectedDayIndex, setSelectedDayIndex] = useState(null);
+  const [trip, setTrip] = useState(null); // holds values for trip to store for creation below
+  const [showAddEventModal, setShowAddEventModal] = useState(false); // boolean value for showing the "Add Event" popup
+  const [showPreferencesModal, setShowPreferencesModal] = useState(false); // boolean value for showing the "Preferences" popup
+  const [selectedDayIndex, setSelectedDayIndex] = useState(null); // holds value for selected days
 
+  // These values hold the different information for creating new events
   const [eventTitle, setEventTitle] = useState('');
   const [eventStartTime, setEventStartTime] = useState('');
   const [eventEndTime, setEventEndTime] = useState('');
@@ -25,19 +26,24 @@ function TripPage() {
   const [eventLocation, setEventLocation] = useState(null);
   const [eventType, setEventType] = useState('');
 
+  // These values are for storing collaborators in the preferences setting
   const [collaborator, setCollaborator] = useState('');
   const [collaboratorsData, setCollaboratorsData] = useState([]);
 
   const [travelMode, setTravelMode] = useState('DRIVING');
 
+  // Use Effect for the api call to Firebase to grab the trip information for a user
   useEffect(() => {
     const fetchAndInitializeTrip = async () => {
+
+      // Formatting for grabbing Firebase docs
       const docRef = doc(db, 'trips', id);
       const docSnap = await getDoc(docRef);
       if (!docSnap.exists()) return;
 
       let tripData = { id: docSnap.id, ...docSnap.data() };
 
+      // Sets initial trip days if there are currently no days in there
       if (!Array.isArray(tripData.days) || tripData.days.length === 0) {
         tripData = initializeTripDays(tripData);
         await updateDoc(docRef, tripData);
@@ -45,12 +51,15 @@ function TripPage() {
 
       setTrip(tripData);
       setTravelMode(tripData.travelMode || 'DRIVING');
+
+      // Fetches collaborator information
       await fetchCollaborators(tripData.collaborators || []);
     };
 
     fetchAndInitializeTrip();
   }, [id]);
 
+  // Initializes the day entities in the database
   const initializeTripDays = (tripData) => {
     const start = new Date(tripData.startDate);
     start.setUTCHours(0, 0, 0, 0);
@@ -65,16 +74,19 @@ function TripPage() {
     return { ...tripData, days };
   };
 
+  // Grabs the collaborators into a list from Firebase
   const fetchCollaborators = async (collabs) => {
     if (!collabs.length) {
       setCollaboratorsData([]);
       return;
     }
+    // If the user is in the collaborator section of the trip then they will populate here
     const q = query(collection(db, 'users'), where('userid', 'in', collabs));
     const snap = await getDocs(q);
     setCollaboratorsData(snap.docs.map(d => d.data()));
   };
 
+  // Function for handling all time operations within the addEvent option
   const handleTime = (input, operation) => {
     if (operation === 'parse') {
       if (!input) return 0;
@@ -110,6 +122,7 @@ function TripPage() {
     return 0;
   };
 
+  // This function adds collaborators to a specific trip through the Preferences popup
   const handleAddCollaborator = async (e) => {
     e.preventDefault();
 
@@ -127,12 +140,14 @@ function TripPage() {
     setCollaborator('');
   };
 
+  // This function removes collaborators
   const handleRemoveCollaborator = async (uid) => {
     const updated = { ...trip, collaborators: trip.collaborators.filter(c => c !== uid) };
     await updateTrip(updated);
     fetchCollaborators(updated.collaborators);
   };
 
+  // This function allows collaborators to leave the trip if they wish
   const handleLeaveTrip = async () => {
     const me = auth.currentUser.uid;
     const updated = { ...trip, collaborators: trip.collaborators.filter(c => c !== me) };
@@ -140,6 +155,7 @@ function TripPage() {
     navigate('/trips');
   };
 
+  // Confirms that the time ranges do not overlap
   const isValidTimeRange = (start, end) => {
     const s = handleTime(start, 'parse');
     const e = handleTime(end, 'parse');
@@ -153,6 +169,7 @@ function TripPage() {
     });
   };
 
+  // Event adding function that adds an event into Firebase
   const handleAddEvent = async (e) => {
     e.preventDefault();
     if (!isValidTimeRange(eventStartTime, eventEndTime)) return;
@@ -171,6 +188,7 @@ function TripPage() {
     const updated = { ...trip, days, travelMode };
     await updateTrip(updated);
 
+    // Resets event data once the trip has that event there
     setEventTitle('');
     setEventStartTime('');
     setEventEndTime('');
@@ -180,6 +198,7 @@ function TripPage() {
     setShowAddEventModal(false);
   };
 
+  // Removes events if the user clicks the X button next to an event
   const handleRemoveEvent = async (dayIdx, evIdx) => {
     const days = [...trip.days];
     days[dayIdx].events.splice(evIdx, 1);
@@ -188,11 +207,13 @@ function TripPage() {
     await updateTrip({ ...trip, days });
   };
 
+  // Updating Trip functionality
   const updateTrip = async (upd) => {
     await updateDoc(doc(db, 'trips', upd.id), upd);
     setTrip(upd);
   };
 
+  // This function uses the Google API to check distances of different events
   const checkEventDistances = async (events) => {
     const distanceService = new window.google.maps.DistanceMatrixService();
     for (let i = 0; i < events.length - 1; i++) {
@@ -213,6 +234,7 @@ function TripPage() {
     return true;
   };
 
+  // This function grabs the available travel options for the events
   const getTravelOptions = (origin, destination, idx, events) => {
     const svc = new window.google.maps.DirectionsService();
     return new Promise(resolve => {
@@ -260,6 +282,8 @@ function TripPage() {
     });
   };
 
+  // This is the function called by the Optimize Route button
+  // Calculates the route and uses the Google API to show it on the map
   const optimizeRoute = async (events) => {
     if (!(await checkEventDistances(events))) return { optimizedEvents: events, travelOptions: [] };
 
@@ -295,6 +319,7 @@ function TripPage() {
     return { optimizedEvents, travelOptions };
   };
 
+  // This function prevents an issue we had with the Google API that messed up with 
   const handleOptimizeDay = async (dayIdx) => {
     const day = trip.days[dayIdx];
     if (day.events.length < 3) return alert('Need at least 3 events to optimize.');
@@ -306,6 +331,7 @@ function TripPage() {
     await updateTrip({ ...trip, days });
   };
 
+  // This is the function that renders the "Day" cards that we have for showing different day values
   const renderDayCard = (day, dayIdx) => (
     <Col md={4} key={day.date}>
       <Card>
