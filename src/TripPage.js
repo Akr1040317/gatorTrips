@@ -30,6 +30,11 @@ function TripPage() {
   const [collaborator, setCollaborator] = useState('');
   const [collaboratorsData, setCollaboratorsData] = useState([]);
 
+  const [showEditEventModal, setShowEditEventModal] = useState(false);
+  const [editEventIndex, setEditEventIndex] = useState(null);
+
+  const [showInvalidTimeAlert, setShowInvalidTimeAlert] = useState(false);
+
   const [travelMode, setTravelMode] = useState('DRIVING');
 
   // Use Effect for the api call to Firebase to grab the trip information for a user
@@ -169,10 +174,32 @@ function TripPage() {
     });
   };
 
+  const isValidTimeRangeEdits = (start, end) => {
+    const s = handleTime(start, 'parse');
+    const e = handleTime(end, 'parse');
+    if (s >= e) return false;
+
+    const day = trip.days[selectedDayIndex];
+    return !day.events.some((ev, idx) => {
+
+      if (editEventIndex && editEventIndex.dayIdx === selectedDayIndex && editEventIndex.eventIdx === idx) {
+        return false;
+      }
+
+      const es = handleTime(ev.startTime, 'parse');
+      const ee = handleTime(ev.endTime, 'parse');
+      return (s >= es && s < ee) || (e > es && e <= ee) || (s < es && e > ee);
+    });
+  };
+
   // Event adding function that adds an event into Firebase
   const handleAddEvent = async (e) => {
     e.preventDefault();
-    if (!isValidTimeRange(eventStartTime, eventEndTime)) return;
+    if (!isValidTimeRange(eventStartTime, eventEndTime)){
+      setShowInvalidTimeAlert(true);
+      setTimeout(() => setShowInvalidTimeAlert(false), 2000);
+      return;
+    }
     if (!eventType) return;
 
     const newEv = {
@@ -206,6 +233,61 @@ function TripPage() {
     days[dayIdx].travelOptions = null;
     await updateTrip({ ...trip, days });
   };
+
+  // Function for editing a specific event
+  const handleEditEvent = (dayIdx, eventIdx) => {
+    const event = trip.days[dayIdx].events[eventIdx];
+    setEditEventIndex({ dayIdx, eventIdx });
+    setEventTitle(event.title);
+    setEventStartTime(event.startTime);
+    setEventEndTime(event.endTime);
+    setEventAddress(event.address);
+    setEventLocation(event.location);
+    setEventType(event.eventType);
+    setShowEditEventModal(true);
+  };
+
+  // Saves the edited event data and insert into Firebase
+  const handleSaveEditedEvent = async (e) => {
+    e.preventDefault();
+  
+    const { dayIdx, eventIdx } = editEventIndex;
+    const updatedEvent = {
+      title: eventTitle,
+      startTime: eventStartTime,
+      endTime: eventEndTime,
+      address: eventAddress,
+      location: eventLocation,
+      eventType: eventType,
+    };
+
+
+    if (!isValidTimeRangeEdits(updatedEvent.startTime, updatedEvent.endTime)) {
+      setShowInvalidTimeAlert(true);
+      setTimeout(() => setShowInvalidTimeAlert(false), 2000);
+      return;
+    }
+
+  
+    const days = [...trip.days];
+    days[dayIdx].events[eventIdx] = updatedEvent;
+  
+    const updatedTrip = { ...trip, days };
+    await updateTrip(updatedTrip);
+
+    setShowEditEventModal(false);
+    };
+
+
+  const handleHideEditEvent = () => {
+    setEventTitle('');
+    setEventStartTime('');
+    setEventEndTime('');
+    setEventAddress('');
+    setEventLocation(null);
+    setEventType('');
+    setShowEditEventModal(false);
+  }
 
   // Updating Trip functionality
   const updateTrip = async (upd) => {
@@ -345,6 +427,14 @@ function TripPage() {
                 <p>{ev.address}</p>
                 <p>Type: {ev.eventType}</p>
               </div>
+              <Button
+                size="sm"
+                variant="outline-primary"
+                style={{ marginLeft: '10px', marginRight: '10px' }}
+                onClick={() => {setSelectedDayIndex(dayIdx); handleEditEvent(dayIdx, i)}}
+              >
+                Edit
+              </Button>
               <CloseButton onClick={() => handleRemoveEvent(dayIdx, i)} />
             </div>
           ))}
@@ -487,7 +577,24 @@ function TripPage() {
                   <option value="TRANSIT">Public Transit</option>
                 </Form.Select>
               </Form.Group>
-              <Button type="submit">Save Event</Button>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                {showInvalidTimeAlert && (
+                  <div
+                    style={{  
+                      position: 'absolute',
+                      bottom: '100%',
+                      backgroundColor: '#f8d7da',
+                      color: '#721c24',
+                      padding: '10px',
+                      borderRadius: '5px',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Invalid Time.
+                  </div>
+                )}
+                  <Button type="submit">Save Event</Button>
+              </div>
             </Form>
           </Modal.Body>
         </Modal>
@@ -527,6 +634,91 @@ function TripPage() {
             )}
             <Button onClick={() => setShowPreferencesModal(false)}>Close</Button>
           </Modal.Footer>
+        </Modal>
+        <Modal show={showEditEventModal} onHide={() => handleHideEditEvent()}>
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Event</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form onSubmit={handleSaveEditedEvent}>
+              <Form.Group className="mb-3">
+                <Form.Label>Title</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={eventTitle}
+                  onChange={(e) => setEventTitle(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Start Time</Form.Label>
+                <Form.Control
+                  type="time"
+                  value={eventStartTime}
+                  onChange={(e) => setEventStartTime(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>End Time</Form.Label>
+                <Form.Control
+                  type="time"
+                  value={eventEndTime}
+                  onChange={(e) => setEventEndTime(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Address</Form.Label>
+                <PlacesAutocomplete
+                  value={eventAddress}
+                  setValue={setEventAddress}
+                  setLocation={setEventLocation}
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Event Type</Form.Label>
+                <Form.Select
+                  value={eventType}
+                  onChange={(e) => setEventType(e.target.value)}
+                  required
+                >
+                  <option value="">Select event type</option>
+                  <option value="Food">Food</option>
+                  <option value="Concert">Concert</option>
+                  <option value="Shopping">Shopping</option>
+                  <option value="Activity">Activity</option>
+                  <option value="Museum">Museum</option>
+                  <option value="Park">Park</option>
+                  <option value="Nightlife">Nightlife</option>
+                  <option value="Sightseeing">Sightseeing</option>
+                  <option value="Sports">Sports</option>
+                  <option value="Workshop">Workshop</option>
+                  <option value="Other">Other</option>
+                </Form.Select>
+              </Form.Group>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                {showInvalidTimeAlert && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '100%',
+                      backgroundColor: '#f8d7da',
+                      color: '#721c24',
+                      padding: '10px',
+                      borderRadius: '5px',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Invalid Time.
+                  </div>
+                )}
+                <Button type="submit" variant="primary">
+                  Save Changes
+                </Button>
+              </div>
+            </Form>
+          </Modal.Body>
         </Modal>
       </div>
     </LoadScript>
